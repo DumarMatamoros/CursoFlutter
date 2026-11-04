@@ -12,11 +12,29 @@ void main() {
 
     expect(find.text('¡Hola, Dumar Matamoros!'), findsOneWidget);
     expect(find.text('Tareas pendientes: 3'), findsOneWidget);
+    expect(find.text('Completadas hoy: 0 de 5'), findsOneWidget);
     expect(find.text('Aún tienes tareas por organizar.'), findsOneWidget);
     expect(
       tester.widget<OutlinedButton>(completeButton()).onPressed,
       isNotNull,
     );
+  });
+
+  testWidgets('Completadas hoy no supera la meta diaria de 5', (tester) async {
+    await tester.pumpWidget(const TaskFlowApp());
+
+    for (var i = 0; i < 4; i++) {
+      await tester.tap(find.text('Agregar tarea'));
+    }
+    await tester.pump();
+    expect(find.text('Tareas pendientes: 7'), findsOneWidget);
+
+    for (var i = 0; i < 7; i++) {
+      await tester.tap(completeButton());
+      await tester.pump();
+    }
+    expect(find.text('Tareas pendientes: 0'), findsOneWidget);
+    expect(find.text('Completadas hoy: 5 de 5'), findsOneWidget);
   });
 
   testWidgets('Flujo completo: agregar, completar hasta 0 y volver a 1', (
