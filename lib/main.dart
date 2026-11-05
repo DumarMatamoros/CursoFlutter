@@ -237,13 +237,44 @@ class TaskDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(task.title, style: Theme.of(context).textTheme.headlineSmall),
+            Row(
+              children: [
+                Icon(
+                  task.isCompleted ? Icons.check_circle : Icons.pending_actions,
+                  size: 40,
+                  color: task.isCompleted ? Colors.green : Colors.orange,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    task.title,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 16),
             Text(task.description),
             const SizedBox(height: 16),
             Chip(label: Text('Prioridad: ${task.priority}')),
             const SizedBox(height: 12),
             Text(task.isCompleted ? 'Estado: completada' : 'Estado: pendiente'),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: task.isCompleted
+                  ? null
+                  : () => ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Tarea marcada como completada'),
+                      ),
+                    ),
+              icon: Icon(task.isCompleted ? Icons.check : Icons.done),
+              label: Text(
+                task.isCompleted
+                    ? 'Tarea completada'
+                    : 'Marcar como completada',
+              ),
+            ),
             const Spacer(),
             FilledButton.tonalIcon(
               onPressed: () => context.pop(),
