@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'task.dart';
+
 void main() {
   runApp(const TaskFlowApp());
 }
@@ -21,29 +23,14 @@ class TaskFlowApp extends StatelessWidget {
   }
 }
 
-class Task {
-  const Task({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.priority,
-    required this.isCompleted,
-  });
-
-  final int id;
-  final String title;
-  final String description;
-  final String priority;
-  final bool isCompleted;
-}
-
-const demoTasks = [
+const demoTasks = <Task>[
   Task(
     id: 1,
     title: 'Crear la pantalla de bienvenida',
     description: 'Diseñar WelcomeScreen con saludos y tarjeta',
-    priority: 'Alta',
+    priority: 'Baja',
     isCompleted: true,
+    userId: 1,
   ),
   Task(
     id: 2,
@@ -51,6 +38,7 @@ const demoTasks = [
     description: 'Instalar y configurar el entorno de desarrollo (flutter doctor y flutter run)',
     priority: 'Alta',
     isCompleted: true,
+    userId: 1,
   ),
   Task(
     id: 3,
@@ -58,6 +46,7 @@ const demoTasks = [
     description: 'Contador de pendientes y completadas',
     priority: 'Media',
     isCompleted: true,
+    userId: 1,
   ),
   Task(
     id: 4,
@@ -65,6 +54,7 @@ const demoTasks = [
     description: 'Mostrar las tareas en una lista local',
     priority: 'Media',
     isCompleted: true,
+    userId: 1,
   ),
   Task(
     id: 5,
@@ -72,8 +62,16 @@ const demoTasks = [
     description: 'Implementar navegación a la pantalla de detalle de la tarea',
     priority: 'Alta',
     isCompleted: false,
+    userId: 1,
   ),
 ];
+
+Task? findTask(int? id) {
+  for (final task in demoTasks) {
+    if (task.id == id) return task;
+  }
+  return null;
+}
 
 final appRouter = GoRouter(
   routes: [
@@ -81,8 +79,8 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/task/:id',
       builder: (context, state) {
-        final taskId = int.parse(state.pathParameters['id']!);
-        return TaskDetailScreen(taskId: taskId);
+        final id = int.tryParse(state.pathParameters['id'] ?? '');
+        return TaskDetailScreen(task: findTask(id));
       },
     ),
   ],
@@ -222,13 +220,34 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 }
 
 class TaskDetailScreen extends StatelessWidget {
-  const TaskDetailScreen({super.key, required this.taskId});
+  const TaskDetailScreen({super.key, required this.task});
 
-  final int taskId;
+  final Task? task;
 
   @override
   Widget build(BuildContext context) {
-    final task = demoTasks.firstWhere((item) => item.id == taskId);
+    final task = this.task;
+
+    if (task == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Detalle de tarea')),
+        body: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('No se encontró esta tarea.'),
+              const SizedBox(height: 24),
+              FilledButton.tonalIcon(
+                onPressed: () => context.go('/'),
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('Volver al listado'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('Detalle de tarea')),
@@ -259,6 +278,7 @@ class TaskDetailScreen extends StatelessWidget {
             Chip(label: Text('Prioridad: ${task.priority}')),
             const SizedBox(height: 12),
             Text(task.isCompleted ? 'Estado: completada' : 'Estado: pendiente'),
+            Text('Usuario: ${task.userId}'),
             const SizedBox(height: 24),
             FilledButton.icon(
               onPressed: task.isCompleted
