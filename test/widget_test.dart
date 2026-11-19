@@ -13,12 +13,12 @@ Widget buildApp() {
 }
 
 void main() {
-  testWidgets('TaskFlow abre el listado con tres tareas', (tester) async {
+  testWidgets('TaskFlow abre el listado con cinco tareas', (tester) async {
     await tester.pumpWidget(buildApp());
     await tester.pumpAndSettle();
 
     expect(find.text('Mis tareas'), findsOneWidget);
-    expect(find.byType(ListTile), findsNWidgets(3));
+    expect(find.byType(ListTile), findsNWidgets(5));
   });
 
   testWidgets('Cambiar el estado en el detalle actualiza la lista', (
@@ -27,7 +27,7 @@ void main() {
     await tester.pumpWidget(buildApp());
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Leer documentación'));
+    await tester.tap(find.text('Navegar al detalle de la tarea'));
     await tester.pumpAndSettle();
     expect(find.text('Estado: pendiente'), findsOneWidget);
 
@@ -38,6 +38,6 @@ void main() {
 
     await tester.pageBack();
     await tester.pumpAndSettle();
-    expect(find.byIcon(Icons.check_circle), findsNWidgets(2));
+    expect(find.byIcon(Icons.check_circle), findsNWidgets(5));
   });
 }
