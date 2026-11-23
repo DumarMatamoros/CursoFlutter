@@ -40,7 +40,7 @@ Las historias 1 y 2 ya están implementadas; la 3, la 4 y la 5 se implementarán
 
 ### Modelo de datos
 
-`Task` (definido en `lib/task.dart`):
+`Task` (definido en `lib/features/tasks/domain/task.dart`):
 
 | Campo         | Tipo     | Descripción                                   |
 |---------------|----------|-----------------------------------------------|
@@ -84,3 +84,24 @@ Las historias 1 y 2 ya están implementadas; la 3, la 4 y la 5 se implementarán
 
 La API concreta se elegirá después. Estas rutas son requisitos, no
 direcciones de un servidor ya conectado.
+
+## API de tareas
+
+Desde la sesión 7, TaskFlow lee sus tareas de la API pública de práctica
+[JSONPlaceholder](https://jsonplaceholder.typicode.com/) usando Dio.
+
+- **URL exacta:** `GET https://jsonplaceholder.typicode.com/todos?userId=2`
+- **Parámetro `userId`:** filtra las tareas por usuario. TaskFlow usa el
+  usuario `2` (constante `TaskApiService.userId`), que devuelve 20 tareas
+  (ids 21 a 40).
+- **Campos recibidos:** `userId` (`int`), `id` (`int`), `title` (`String`) y
+  `completed` (`bool`, se convierte en `isCompleted`).
+- **Valores que completa TaskFlow:** la API no envía `description` ni
+  `priority`, así que `Task.fromJson` usa los valores de ejemplo
+  `"Tarea de ejemplo obtenida de la API (API)"` y `"Media (API)"`.
+- **Marcar como completada es solo local:** el cambio se guarda en una copia en
+  memoria de `RemoteTaskRepository`; no se envía a la API y se pierde al
+  reiniciar la app.
+
+Flujo: `main` → `TasksViewModel` → `RemoteTaskRepository` → `TaskApiService`
+→ Dio `GET` → `Task.fromJson` → `notifyListeners` → lista y detalle.
