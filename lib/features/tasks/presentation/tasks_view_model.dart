@@ -4,14 +4,33 @@ import '../data/task_repository.dart';
 import '../domain/task.dart';
 
 class TasksViewModel extends ChangeNotifier {
-  TasksViewModel(TaskRepository repository)
-    : _repository = repository,
-      _tasks = repository.getTasks();
+  TasksViewModel(this._repository);
 
   final TaskRepository _repository;
-  List<Task> _tasks;
+
+  List<Task> _tasks = [];
+  bool _isLoading = false;
+  String? _errorMessage;
 
   List<Task> get tasks => List.unmodifiable(_tasks);
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+
+  Future<void> loadTasks() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _tasks = await _repository.getTasks();
+    } catch (error) {
+      debugPrint('Error al cargar tareas: $error');
+      _errorMessage = 'No se pudieron cargar las tareas.';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 
   Task? findTask(int? id) {
     if (id == null) return null;
@@ -22,11 +41,14 @@ class TasksViewModel extends ChangeNotifier {
   }
 
   void toggleCompleted(int id) {
-    final current = findTask(id);
-    if (current == null) return;
+    final index = _tasks.indexWhere((task) => task.id == id);
+    if (index == -1) return;
 
-    _repository.save(current.copyWith(isCompleted: !current.isCompleted));
-    _tasks = _repository.getTasks();
+    final updated = _tasks[index].copyWith(
+      isCompleted: !_tasks[index].isCompleted,
+    );
+    _tasks = [..._tasks]..[index] = updated;
+    _repository.save(updated);
     notifyListeners();
   }
 }

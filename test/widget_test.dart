@@ -7,7 +7,7 @@ import 'package:taskflow/features/tasks/presentation/tasks_view_model.dart';
 
 Widget buildApp() {
   return ChangeNotifierProvider<TasksViewModel>(
-    create: (_) => TasksViewModel(LocalTaskRepository()),
+    create: (_) => TasksViewModel(LocalTaskRepository())..loadTasks(),
     child: const TaskFlowApp(),
   );
 }

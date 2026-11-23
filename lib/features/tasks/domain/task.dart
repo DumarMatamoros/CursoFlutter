@@ -30,9 +30,11 @@ class Task {
     return Task(
       id: json['id'] as int,
       title: json['title'] as String,
-      description: json['description'] as String,
-      priority: json['priority'] as String,
-      isCompleted: json['isCompleted'] as bool,
+      description:
+          json['description'] as String? ??
+          'Tarea de ejemplo obtenida de la API (API)',
+      priority: json['priority'] as String? ?? 'Media (API)',
+      isCompleted: (json['isCompleted'] ?? json['completed']) as bool? ?? false,
       userId: json['userId'] as int,
     );
   }
