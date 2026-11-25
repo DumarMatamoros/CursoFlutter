@@ -105,3 +105,25 @@ Desde la sesión 7, TaskFlow lee sus tareas de la API pública de práctica
 
 Flujo: `main` → `TasksViewModel` → `RemoteTaskRepository` → `TaskApiService`
 → Dio `GET` → `Task.fromJson` → `notifyListeners` → lista y detalle.
+
+## Estados de la lista de tareas
+
+Desde la sesión 8, `TaskListScreen` muestra un estado explícito para cada
+resultado de `TasksViewModel.loadTasks()`:
+
+| Estado    | Qué ve el usuario                                                                 | Cómo se provocó para la evidencia                                                                 |
+|-----------|-----------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| Cargando  | `CircularProgressIndicator` centrado; el botón de actualizar queda deshabilitado | Red del emulador limitada (Extended controls → Cellular → Network type: GPRS) al abrir la app     |
+| Datos     | Tarjetas con título y prioridad; se puede actualizar deslizando hacia abajo      | Ejecución normal con `userId = 2` (20 tareas)                                                     |
+| Vacío     | "Todavía no hay tareas para mostrar." y botón **Actualizar**                      | `TaskApiService.userId` cambiado temporalmente a `9999` (la API responde `200` con `[]`), restaurado a `2` después |
+| Error     | Mensaje de conexión y botón **Reintentar**                                        | Modo avión en el emulador y luego tocar el botón de actualizar de la barra                       |
+
+- **Vacío y error son distintos:** una respuesta válida sin tareas no lanza
+  excepción, así que muestra **Actualizar**; solo un fallo de red, servidor o
+  formato muestra **Reintentar**.
+- **Recuperación sin reiniciar:** con el error visible se desactiva el modo
+  avión y se toca **Reintentar**; la lista vuelve a aparecer.
+- **Sin peticiones repetidas:** `loadTasks()` no hace nada si ya hay una carga
+  en curso.
+- **Pruebas:** `test/task_list_states_test.dart` usa un repositorio falso para
+  comprobar los estados vacío, error → reintento → lista, y carga.
