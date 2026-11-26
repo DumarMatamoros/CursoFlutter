@@ -32,8 +32,14 @@ class TaskListScreen extends StatelessWidget {
         onPressed: () async {
           final draft = await context.push<TaskDraft>('/new');
           if (!context.mounted || draft == null) return;
+          final dueDate = draft.dueDate;
+          final dateText = dueDate == null
+              ? ''
+              : ' (fecha límite: ${formatDate(dueDate)})';
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Formulario válido: ${draft.title}')),
+            SnackBar(
+              content: Text('Formulario válido: ${draft.title}$dateText'),
+            ),
           );
         },
       ),

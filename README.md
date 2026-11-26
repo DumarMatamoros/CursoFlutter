@@ -36,7 +36,7 @@ samples, guidance on mobile development, and a full API reference.
 5. Como estudiante, quiero eliminar una tarea terminada para limpiar la lista.
    - Criterio: después de confirmar, la tarea desaparece de la lista.
 
-Las historias 1 y 2 ya están implementadas; la 3, la 4 y la 5 se implementarán en sesiones posteriores.
+Las historias 1 y 2 ya están implementadas. La 3 tiene el formulario validado (sesión 9) y se completará al conectar el `POST` en la sesión 10; la 4 y la 5 se implementarán en sesiones posteriores.
 
 ### Modelo de datos
 
@@ -127,3 +127,26 @@ resultado de `TasksViewModel.loadTasks()`:
   en curso.
 - **Pruebas:** `test/task_list_states_test.dart` usa un repositorio falso para
   comprobar los estados vacío, error → reintento → lista, y carga.
+
+## Formulario de nueva tarea
+
+Desde la sesión 9, el botón **Nueva tarea** de la lista abre `/new`
+(`TaskFormScreen`). Al guardar, el formulario devuelve un `TaskDraft` a la
+lista, que muestra el mensaje "Formulario válido: …". **Todavía no se envía
+nada a la API**; el `POST` se conectará en la sesión 10.
+
+| Campo           | Regla                                   | Mensaje si no se cumple                                            |
+|-----------------|-----------------------------------------|--------------------------------------------------------------------|
+| Título          | Obligatorio, de 3 a 60 caracteres       | "El título es obligatorio: describe la tarea en pocas palabras." / "El título es muy corto: usa al menos 3 caracteres." / "El título es muy largo: usa máximo 60 caracteres." |
+| Descripción     | Opcional, máximo 200 caracteres         | "La descripción no puede superar 200 caracteres."                  |
+| Prioridad       | Alta, Media o Baja (por defecto Media)  | "Elige una prioridad para la tarea."                               |
+| Fecha límite    | **Opcional**, desde hoy hasta 2 años    | Ninguno: se puede guardar sin fecha y quitarla con la ✕            |
+
+- Los errores se muestran al tocar **Guardar** y, después, mientras se escribe
+  (`AutovalidateMode.onUserInteraction`).
+- El título y la descripción se guardan sin espacios al inicio ni al final.
+- La fecha se elige con `showDatePicker` y se muestra como `dd/mm/aaaa`; si se
+  eligió, también aparece en el mensaje de vuelta.
+- Volver con la flecha atrás descarta el formulario sin mostrar mensaje.
+- **Pruebas:** `test/task_form_test.dart` comprueba título vacío, título de 2
+  caracteres, formulario válido, fecha opcional y volver sin guardar.
